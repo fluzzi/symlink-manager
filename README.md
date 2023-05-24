@@ -1,4 +1,3 @@
----
 # Symlink Manager
 
 Symlink Manager is a Python command line application that helps manage symbolic links. It can gather existing symbolic links, create new ones, remove existing ones, and restore symbolic links from a yaml file. 
@@ -48,4 +47,3 @@ optional arguments:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
