@@ -183,7 +183,7 @@ class SymLink:
 # Argument parsing
 parser = argparse.ArgumentParser(description='Manage symbolic links.')
 subparsers = parser.add_subparsers(dest='command', help='sub-command help')
-parser.add_argument('--file', help='Specify a different yaml file.')
+parser.add_argument('--file', dest="parentfile", help='Specify a different yaml file.')
 
 # Parent parser for common arguments
 parent_parser = argparse.ArgumentParser(add_help=False)
@@ -213,6 +213,8 @@ restore_parser.add_argument('--dry-run', action='store_true', help='Show what wo
 list_parser = subparsers.add_parser('list', parents=[parent_parser], help='List all symlinks in the yaml file.')
 
 args = parser.parse_args()
+if not args.file:
+    args.file = args.parentfile
 
 # Check if a command has been provided
 if not args.command:
