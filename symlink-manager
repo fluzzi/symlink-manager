@@ -3,6 +3,7 @@ import os
 import yaml
 import argparse
 import uuid
+import sys
 
 class SymLink:
     def __init__(self, home_dir, target_dir=None, file=None):
@@ -180,10 +181,36 @@ class SymLink:
             print(f"    File: {link_info['file']}")
             print(f"    Link: {link_info['link']}")
 
+    def search_link(self, target):
+        link_target = os.path.abspath(target)
+        link_target = link_target + "/" if os.path.isdir(link_target) and not link_target.endswith('/') else link_target
+        if not os.path.exists(link_target):
+            print(f"{target} not found.")
+            sys.exit(1)
+
+        if os.path.exists(self.output_file):
+            with open(self.output_file, 'r') as f:
+                links_dict = yaml.safe_load(f)
+                if links_dict is None:  # If the file is empty, safe_load returns None
+                    links_dict = {}
+        else:
+            print(f"No yaml file found at {self.output_file}")
+            sys.exit(1)
+
+        # Find the target in the dictionary and get the link
+        for key in list(links_dict.keys()):  # Iterate over a copy of keys to safely modify the dict
+            if links_dict[key]['file'] == link_target:
+                link = links_dict[key]['link']
+                print(f"{link}")
+                sys.exit(0)
+        else:
+            print(f"No record found in yaml file for {target}")
+            sys.exit(1)
+
 # Argument parsing
 parser = argparse.ArgumentParser(description='Manage symbolic links.')
 subparsers = parser.add_subparsers(dest='command', help='sub-command help')
-parser.add_argument('--file', dest="parentfile", help='Specify a different yaml file.')
+parser.add_argument('--file', dest="parentfile", metavar="FILE", help='Specify a different yaml file.')
 
 # Parent parser for common arguments
 parent_parser = argparse.ArgumentParser(add_help=False)
@@ -212,6 +239,10 @@ restore_parser.add_argument('--dry-run', action='store_true', help='Show what wo
 # Add a new parser for the list command
 list_parser = subparsers.add_parser('list', parents=[parent_parser], help='List all symlinks in the yaml file.')
 
+# Search command
+search_parser = subparsers.add_parser('search', parents=[parent_parser], help='Search for a symlink using target path')
+search_parser.add_argument('TARGET', help='The target of the symlink.')
+
 args = parser.parse_args()
 if not args.file:
     args.file = args.parentfile
@@ -237,3 +268,5 @@ elif args.command == 'restore':
     sym_link.restore_links(args.dry_run)
 elif args.command == 'list':
     sym_link.list_links()
+elif args.command == 'search':
+    sym_link.search_link(args.TARGET)
