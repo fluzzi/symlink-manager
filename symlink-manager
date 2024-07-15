@@ -199,9 +199,10 @@ class SymLink:
 
         # Find the target in the dictionary and get the link
         for key in list(links_dict.keys()):  # Iterate over a copy of keys to safely modify the dict
-            if links_dict[key]['file'] == link_target:
+            if links_dict[key]['link'] == link_target:
                 link = links_dict[key]['link']
-                print(f"{link}")
+                file = links_dict[key]['file']
+                print(f"{link} -> {file}")
                 sys.exit(0)
         else:
             print(f"No record found in yaml file for {target}")
